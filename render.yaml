@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: body-calculator
+    env: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    # Redirect all routes to index.html for client-side routing
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: NODE_VERSION
+        value: 18
+    # Auto deploy on push to main branch
+    autoDeploy: true 
