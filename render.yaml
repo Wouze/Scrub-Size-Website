@@ -1,9 +1,8 @@
 services:
-  - type: web
+  - type: static_site
     name: body-calculator
-    env: static
     buildCommand: npm install && npm run build
-    staticPublishPath: ./dist
+    publishDir: dist
     # Redirect all routes to index.html for client-side routing
     routes:
       - type: rewrite
