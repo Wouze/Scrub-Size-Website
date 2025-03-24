@@ -68,7 +68,7 @@ export function calculateScrubSize({
     // Find the closest size match in the male chart based on chest measurement
     if (estimatedChest < 107) return 'XS';
     if (estimatedChest < 112) return 'S';
-    if (estimatedChest < 117) return 'M';
+    if (estimatedChest < 116) return 'M';
     if (estimatedChest < 122) return 'L';
     if (estimatedChest < 127) return 'XL';
     if (estimatedChest < 132) return '2XL';

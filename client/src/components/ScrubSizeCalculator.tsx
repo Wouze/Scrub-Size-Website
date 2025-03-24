@@ -75,7 +75,12 @@ export default function ScrubSizeCalculator() {
           </div>
           
           <div className="md:order-1">
-            <ScrubSizeCard scrubSize={scrubSize} gender={gender} />
+            <ScrubSizeCard 
+              scrubSize={scrubSize} 
+              gender={gender} 
+              height={heightCm}
+              weight={weightKg}
+            />
           </div>
         </div>
         

@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Tooltip,
   TooltipContent,
@@ -22,12 +22,71 @@ import { motion } from "framer-motion";
 interface ScrubSizeCardProps {
   scrubSize: ScrubSize;
   gender?: "male" | "female";
+  height?: number;
+  weight?: number;
 }
 
-export default function ScrubSizeCard({ scrubSize, gender = "male" }: ScrubSizeCardProps) {
+export default function ScrubSizeCard({ scrubSize, gender = "male", height, weight }: ScrubSizeCardProps) {
   const sizeDescription = getScrubSizeDescription(scrubSize);
   const sizeChartText = getScrubSizeChartText();
   const [showSizeChart, setShowSizeChart] = useState(false);
+  const [feedback, setFeedback] = useState<'good' | 'bad' | null>(null);
+  const [showFeedbackButtons, setShowFeedbackButtons] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Show feedback buttons after 5 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowFeedbackButtons(true);
+    }, 5000); // 5 seconds delay
+
+    return () => clearTimeout(timer);
+  }, []);
+  
+  // Function to submit feedback
+  const submitFeedback = async (feedbackValue: 'good' | 'bad') => {
+    setIsSubmitting(true);
+    setError(null);
+    
+    try {
+      const parsedHeight = Number(height);
+      const parsedWeight = Number(weight);
+      console.log('height:', height, 'weight:', weight, typeof height, typeof weight);
+
+    if (!parsedHeight || !parsedWeight) {
+      throw new Error('Height and weight must be provided');
+        }
+
+      // Get IP address
+      const ipResponse = await fetch('https://api.ipify.org?format=json');
+      const ipData = await ipResponse.json();
+
+      // Prepare form data
+      const formData = new FormData();
+      formData.append('answer', feedbackValue === 'good' ? 'Yes' : 'No');
+      formData.append('height', parsedHeight.toString());
+      formData.append('weight', parsedWeight.toString());
+      formData.append('ip', ipData.ip);
+      formData.append('ua', navigator.userAgent);
+      formData.append('recommendedSize', scrubSize);
+      formData.append('gender', gender);
+
+      // Submit to Google Apps Script
+      await fetch('https://script.google.com/macros/s/AKfycbzRQbuxQy-jIkPT6nHj-wLdNj7SKgZnpVIVvB3szYsUTq3ZtziSTslvm7jIo7of4BUImA/exec', {
+        method: 'POST',
+        body: formData,
+        mode: 'no-cors'
+      });
+
+      setFeedback(feedbackValue);
+    } catch (error) {
+      console.error('Error submitting feedback:', error);
+      setError(error instanceof Error ? error.message : 'حدث خطأ أثناء إرسال التقييم');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   
   // Map English size descriptions to Arabic
   const sizeMapArabic = {
@@ -282,16 +341,86 @@ export default function ScrubSizeCard({ scrubSize, gender = "male" }: ScrubSizeC
             )}
 
             <motion.div 
-              className="mt-6 flex items-center justify-start"
+              className="mt-6 flex items-center justify-start gap-4 flex-wrap"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.7, duration: 0.5 }}
-              whileHover={{ scale: 1.05 }}
             >
               <div className="flex items-center justify-center bg-primary/10 text-primary px-4 py-2 rounded-full">
                 <Check className="h-4 w-4 ml-1" />
-                <span className="text-sm font-medium">مقاس دقيق وموصى به</span>
+                <span className="text-sm font-medium"> وش رايك بالنتيجة؟</span>
               </div>
+
+              {!feedback && showFeedbackButtons && (
+                <motion.div 
+                  className="flex gap-2 flex-wrap"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <motion.button
+                    onClick={() => submitFeedback('good')}
+                    disabled={isSubmitting}
+                    className={`flex items-center justify-center bg-green-100 text-green-700 px-4 py-2 rounded-full hover:bg-green-200 transition-colors ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    whileHover={!isSubmitting ? { scale: 1.05 } : {}}
+                    whileTap={!isSubmitting ? { scale: 0.95 } : {}}
+                  >
+                    <Check className="h-4 w-4 ml-1" />
+                    <span className="text-sm font-medium">المقاس مناسب</span>
+                  </motion.button>
+
+                  <motion.button
+                    onClick={() => submitFeedback('bad')}
+                    disabled={isSubmitting}
+                    className={`flex items-center justify-center bg-red-100 text-red-700 px-4 py-2 rounded-full hover:bg-red-200 transition-colors ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    whileHover={!isSubmitting ? { scale: 1.05 } : {}}
+                    whileTap={!isSubmitting ? { scale: 0.95 } : {}}
+                  >
+                    <span className="text-sm font-medium">المقاس غير مناسب</span>
+                  </motion.button>
+                </motion.div>
+              )}
+
+              {isSubmitting && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="text-sm text-gray-500"
+                >
+                  جاري إرسال تقييمك...
+                </motion.div>
+              )}
+
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="text-sm text-red-500"
+                >
+                  {error}
+                </motion.div>
+              )}
+
+              {feedback === 'good' && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="flex items-center justify-center bg-green-100 text-green-700 px-4 py-2 rounded-full"
+                >
+                  <Check className="h-4 w-4 ml-1" />
+                  <span className="text-sm font-medium">شكراً لتأكيد المقاس المناسب</span>
+                </motion.div>
+              )}
+
+              {feedback === 'bad' && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="flex items-center justify-center bg-red-100 text-red-700 px-4 py-2 rounded-full"
+                >
+                  <span className="text-sm font-medium">نأسف لعدم مناسبة المقاس</span>
+                </motion.div>
+              )}
             </motion.div>
           </div>
         </div>
@@ -299,3 +428,5 @@ export default function ScrubSizeCard({ scrubSize, gender = "male" }: ScrubSizeC
     </Card>
   );
 }
+
+
