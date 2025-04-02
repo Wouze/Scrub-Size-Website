@@ -34,7 +34,11 @@ export default function ScrubSizeCard({ scrubSize, gender = "male", height, weig
   const [showFeedbackButtons, setShowFeedbackButtons] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
+  // NEW: second-step states
+  const [showCorrectSizePrompt, setShowCorrectSizePrompt] = useState(false);
+  const [actualSize, setActualSize] = useState<string | null>(null);
+
   // Show feedback buttons after 5 seconds
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -44,7 +48,7 @@ export default function ScrubSizeCard({ scrubSize, gender = "male", height, weig
     return () => clearTimeout(timer);
   }, []);
   
-  // Function to submit feedback
+  // Function to submit FIRST feedback
   const submitFeedback = async (feedbackValue: 'good' | 'bad') => {
     setIsSubmitting(true);
     setError(null);
@@ -52,7 +56,6 @@ export default function ScrubSizeCard({ scrubSize, gender = "male", height, weig
     try {
       const parsedHeight = Number(height);
       const parsedWeight = Number(weight);
-      console.log('height:', height, 'weight:', weight, typeof height, typeof weight);
 
     if (!parsedHeight || !parsedWeight) {
       throw new Error('Height and weight must be provided');
@@ -80,6 +83,11 @@ export default function ScrubSizeCard({ scrubSize, gender = "male", height, weig
         mode: 'no-cors'
       });
 
+      // If user says 'bad', show second prompt for correct size
+      if (feedbackValue === 'bad') {
+        setShowCorrectSizePrompt(true);
+      }
+
       setFeedback(feedbackValue);
     } catch (error) {
       console.error('Error submitting feedback:', error);
@@ -89,6 +97,47 @@ export default function ScrubSizeCard({ scrubSize, gender = "male", height, weig
     }
   };
   
+  // NEW: Function to submit the CORRECT size if user said "bad"
+  const submitCorrectSize = async (size: string) => {
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const parsedHeight = Number(height);
+      const parsedWeight = Number(weight);
+
+      // Get IP address
+      const ipResponse = await fetch('https://api.ipify.org?format=json');
+      const ipData = await ipResponse.json();
+
+      // Prepare form data for second feedback
+      const formData = new FormData();
+      formData.append('answer', 'User chose a different size');
+      formData.append('correctSize', size);
+      formData.append('height', parsedHeight.toString());
+      formData.append('weight', parsedWeight.toString());
+      formData.append('websiteSizeResult', size);
+      formData.append('ip', ipData.ip);
+      formData.append('ua', navigator.userAgent);
+      formData.append('recommendedSize', scrubSize);
+      formData.append('gender', gender);
+
+      // Submit to Google Apps Script
+      await fetch('https://script.google.com/macros/s/AKfycbyHQ4vkO6vQhR6UExvqMjOX5GpVNbF6ztnZNlSZbg4KD1-axVK4tOVPF-JS9fGTxYdnIQ/exec ', {
+        method: 'POST',
+        body: formData,
+        mode: 'no-cors'
+      });
+
+      setActualSize(size);
+    } catch (error) {
+      console.error('Error submitting actual size:', error);
+      setError(error instanceof Error ? error.message : 'حدث خطأ أثناء إرسال المقاس الصحيح');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   // Map English size descriptions to Arabic
   const sizeMapArabic = {
     'XXS': 'صغير جداً جداً',
@@ -202,10 +251,10 @@ export default function ScrubSizeCard({ scrubSize, gender = "male", height, weig
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="w-[80px]">المقاس</TableHead>
-                      <TableHead>طول الأعلى</TableHead>
-                      <TableHead>الصدر</TableHead>
-                      <TableHead className="hidden md:table-cell">طول البنطلون</TableHead>
+                      <TableHead className="p-1 w-[80px]">المقاس</TableHead>
+                      <TableHead className="p-1" >طول القميص</TableHead>
+                      <TableHead className="p-1" >الصدر</TableHead>
+                      <TableHead className="p-1">طول البنطلون</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -216,43 +265,43 @@ export default function ScrubSizeCard({ scrubSize, gender = "male", height, weig
                           <TableCell className="font-medium">XS</TableCell>
                           <TableCell>66</TableCell>
                           <TableCell>107</TableCell>
-                          <TableCell className="hidden md:table-cell">99</TableCell>
+                          <TableCell>99</TableCell>
                         </TableRow>
                         <TableRow className={highlightCurrentSize('S')}>
                           <TableCell className="font-medium">S</TableCell>
                           <TableCell>68.5</TableCell>
                           <TableCell>112</TableCell>
-                          <TableCell className="hidden md:table-cell">100</TableCell>
+                          <TableCell >100</TableCell>
                         </TableRow>
                         <TableRow className={highlightCurrentSize('M')}>
                           <TableCell className="font-medium">M</TableCell>
                           <TableCell>71</TableCell>
                           <TableCell>117</TableCell>
-                          <TableCell className="hidden md:table-cell">101</TableCell>
+                          <TableCell >101</TableCell>
                         </TableRow>
                         <TableRow className={highlightCurrentSize('L')}>
                           <TableCell className="font-medium">L</TableCell>
                           <TableCell>73.5</TableCell>
                           <TableCell>122</TableCell>
-                          <TableCell className="hidden md:table-cell">102</TableCell>
+                          <TableCell >102</TableCell>
                         </TableRow>
                         <TableRow className={highlightCurrentSize('XL')}>
                           <TableCell className="font-medium">XL</TableCell>
                           <TableCell>76</TableCell>
                           <TableCell>127</TableCell>
-                          <TableCell className="hidden md:table-cell">103</TableCell>
+                          <TableCell >103</TableCell>
                         </TableRow>
                         <TableRow className={highlightCurrentSize('2XL')}>
                           <TableCell className="font-medium">2XL</TableCell>
                           <TableCell>78.5</TableCell>
                           <TableCell>132</TableCell>
-                          <TableCell className="hidden md:table-cell">104</TableCell>
+                          <TableCell >104</TableCell>
                         </TableRow>
                         <TableRow className={highlightCurrentSize('3XL')}>
                           <TableCell className="font-medium">3XL</TableCell>
                           <TableCell>81</TableCell>
                           <TableCell>137</TableCell>
-                          <TableCell className="hidden md:table-cell">105</TableCell>
+                          <TableCell >105</TableCell>
                         </TableRow>
                       </>
                     ) : (
@@ -262,43 +311,43 @@ export default function ScrubSizeCard({ scrubSize, gender = "male", height, weig
                           <TableCell className="font-medium">XXS</TableCell>
                           <TableCell>62.5</TableCell>
                           <TableCell>97</TableCell>
-                          <TableCell className="hidden md:table-cell">95</TableCell>
+                          <TableCell >95</TableCell>
                         </TableRow>
                         <TableRow className={highlightCurrentSize('XS')}>
                           <TableCell className="font-medium">XS</TableCell>
                           <TableCell>65</TableCell>
                           <TableCell>102</TableCell>
-                          <TableCell className="hidden md:table-cell">96</TableCell>
+                          <TableCell >96</TableCell>
                         </TableRow>
                         <TableRow className={highlightCurrentSize('S')}>
                           <TableCell className="font-medium">S</TableCell>
                           <TableCell>67.5</TableCell>
                           <TableCell>107</TableCell>
-                          <TableCell className="hidden md:table-cell">97</TableCell>
+                          <TableCell >97</TableCell>
                         </TableRow>
                         <TableRow className={highlightCurrentSize('M')}>
                           <TableCell className="font-medium">M</TableCell>
                           <TableCell>70</TableCell>
                           <TableCell>112</TableCell>
-                          <TableCell className="hidden md:table-cell">98</TableCell>
+                          <TableCell >98</TableCell>
                         </TableRow>
                         <TableRow className={highlightCurrentSize('L')}>
                           <TableCell className="font-medium">L</TableCell>
                           <TableCell>72.5</TableCell>
                           <TableCell>117</TableCell>
-                          <TableCell className="hidden md:table-cell">99</TableCell>
+                          <TableCell >99</TableCell>
                         </TableRow>
                         <TableRow className={highlightCurrentSize('XL')}>
                           <TableCell className="font-medium">XL</TableCell>
                           <TableCell>75</TableCell>
                           <TableCell>122</TableCell>
-                          <TableCell className="hidden md:table-cell">100</TableCell>
+                          <TableCell >100</TableCell>
                         </TableRow>
                         <TableRow className={highlightCurrentSize('2XL')}>
                           <TableCell className="font-medium">2XL</TableCell>
                           <TableCell>77.5</TableCell>
                           <TableCell>127</TableCell>
-                          <TableCell className="hidden md:table-cell">101</TableCell>
+                          <TableCell >101</TableCell>
                         </TableRow>
                       </>
                     )}
@@ -383,16 +432,62 @@ export default function ScrubSizeCard({ scrubSize, gender = "male", height, weig
                 </motion.div>
               )}
 
-              {feedback === 'bad' && (
+              {feedback === 'bad' && !actualSize && (
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="flex items-center justify-center bg-red-100 text-red-700 px-4 py-2 rounded-full"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                  className="text-sm font-medium text-red-600"
                 >
-                  <span className="text-sm font-medium">نأسف لعدم مناسبة المقاس</span>
+                  نأسف لعدم مناسبة المقاس
                 </motion.div>
               )}
             </motion.div>
+
+            {/* SECOND STEP: Ask for actual/correct size if user clicked 'bad' */}
+            {feedback === 'bad' && showCorrectSizePrompt && !actualSize && (
+              <motion.div
+                className="mt-4 p-4 border border-red-200 rounded"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                <p className="text-sm mb-2">
+                  ما هو المقاس الصحيح الذي تراه مناسب لك؟
+                </p>
+
+                <div className="flex flex-wrap gap-2">
+                  {['XXS','XS','S','M','L','XL','2XL','3XL'].map((sizeOption) => (
+                    <motion.button
+                      key={sizeOption}
+                      onClick={() => submitCorrectSize(sizeOption)}
+                      disabled={isSubmitting}
+                      className={`px-3 py-1 rounded border text-sm ${
+                        isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-red-50'
+                      }`}
+                      whileHover={!isSubmitting ? { scale: 1.05 } : {}}
+                      whileTap={!isSubmitting ? { scale: 0.95 } : {}}
+                    >
+                      {sizeOption}
+                    </motion.button>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+
+            {/* Show confirmation after they pick the correct size */}
+            {actualSize && (
+              <motion.div
+                className="mt-4 p-4 border border-green-200 rounded bg-green-50 text-green-800"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5 }}
+              >
+                <p className="text-sm">
+                  شكرًا لإخبارنا أن المقاس المناسب لك هو {actualSize}!
+                </p>
+              </motion.div>
+            )}
           </div>
         </div>
       </motion.div>
