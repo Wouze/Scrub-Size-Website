@@ -6,6 +6,7 @@ import { Shirt, RulerIcon, ShoppingBag } from "lucide-react";
 import { motion } from "framer-motion";
 
 export type UnitSystem = "metric";
+const brandName = "سوار";
 
 export default function ScrubSizeCalculator() {
   const [gender, setGender] = useState<Gender>("male");
@@ -36,8 +37,9 @@ export default function ScrubSizeCalculator() {
             transition={{ duration: 0.6 }}
             className="flex items-center"
           >
-            <img src="/images/saddl-logo.png" alt="صدل" className="h-14" />
-            <h2 className="text-2xl font-bold text-primary mr-2">صدل</h2>
+            {/* <img src="/images/saddl-logo.png" alt="{brandName}" className="h-14" /> */}
+            <img src="https://cdn.salla.sa/DpwDl/okDKFrycOfte1tTXcCOZ40zi8mKet8bl0K5NOLPz.png" alt="{brandName}" className="h-14" />
+            <h2 className="text-2xl font-bold text-primary mr-2">{brandName}</h2>
           </motion.div>
         </div>
         
@@ -52,7 +54,7 @@ export default function ScrubSizeCalculator() {
             مساعد مقاسات الزي الطبي
           </h1>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-            اعثر على مقاس الزي الطبي المناسب من صدل باستخدام حاسبة المقاسات المتخصصة
+            اعثر على مقاس الزي الطبي المناسب من {brandName} باستخدام حاسبة المقاسات المتخصصة
           </p>
           
           <div className="flex items-center justify-center mt-8 mb-2 text-sm text-muted-foreground">
@@ -95,14 +97,14 @@ export default function ScrubSizeCalculator() {
             whileTap={{ scale: 0.95 }}
           >
             <ShoppingBag className="h-5 w-5 ml-2" />
-            متابعة التسوق في موقع صدل
+            متابعة التسوق في موقع {brandName}
           </motion.a>
         </div>
         
         {/* Footer */}
         <div className="text-center mt-8 text-sm text-muted-foreground">
           <p>للإشارة فقط. قد تختلف النتائج حسب العلامة التجارية وتفضيلات النمط.</p>
-          <p className="mt-2">&copy; {new Date().getFullYear()} صدل. جميع الحقوق محفوظة.</p>
+          <p className="mt-2">&copy; {new Date().getFullYear()} {brandName}. جميع الحقوق محفوظة.</p>
         </div>
       </div>
     </div>
