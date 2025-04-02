@@ -67,13 +67,14 @@ export default function ScrubSizeCard({ scrubSize, gender = "male", height, weig
       formData.append('answer', feedbackValue === 'good' ? 'Yes' : 'No');
       formData.append('height', parsedHeight.toString());
       formData.append('weight', parsedWeight.toString());
+      formData.append('websiteSizeResult', scrubSize);
       formData.append('ip', ipData.ip);
       formData.append('ua', navigator.userAgent);
       formData.append('recommendedSize', scrubSize);
       formData.append('gender', gender);
 
       // Submit to Google Apps Script
-      await fetch('https://script.google.com/macros/s/AKfycbzRQbuxQy-jIkPT6nHj-wLdNj7SKgZnpVIVvB3szYsUTq3ZtziSTslvm7jIo7of4BUImA/exec', {
+      await fetch('https://script.google.com/macros/s/AKfycbyHQ4vkO6vQhR6UExvqMjOX5GpVNbF6ztnZNlSZbg4KD1-axVK4tOVPF-JS9fGTxYdnIQ/exec', {
         method: 'POST',
         body: formData,
         mode: 'no-cors'
@@ -203,9 +204,7 @@ export default function ScrubSizeCard({ scrubSize, gender = "male", height, weig
                     <TableRow>
                       <TableHead className="w-[80px]">المقاس</TableHead>
                       <TableHead>طول الأعلى</TableHead>
-                      <TableHead>الكتف</TableHead>
                       <TableHead>الصدر</TableHead>
-                      <TableHead>الخصر</TableHead>
                       <TableHead className="hidden md:table-cell">طول البنطلون</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -216,57 +215,43 @@ export default function ScrubSizeCard({ scrubSize, gender = "male", height, weig
                         <TableRow className={highlightCurrentSize('XS')}>
                           <TableCell className="font-medium">XS</TableCell>
                           <TableCell>66</TableCell>
-                          <TableCell>47</TableCell>
                           <TableCell>107</TableCell>
-                          <TableCell>82</TableCell>
                           <TableCell className="hidden md:table-cell">99</TableCell>
                         </TableRow>
                         <TableRow className={highlightCurrentSize('S')}>
                           <TableCell className="font-medium">S</TableCell>
                           <TableCell>68.5</TableCell>
-                          <TableCell>48.5</TableCell>
                           <TableCell>112</TableCell>
-                          <TableCell>84</TableCell>
                           <TableCell className="hidden md:table-cell">100</TableCell>
                         </TableRow>
                         <TableRow className={highlightCurrentSize('M')}>
                           <TableCell className="font-medium">M</TableCell>
                           <TableCell>71</TableCell>
-                          <TableCell>50</TableCell>
                           <TableCell>117</TableCell>
-                          <TableCell>86</TableCell>
                           <TableCell className="hidden md:table-cell">101</TableCell>
                         </TableRow>
                         <TableRow className={highlightCurrentSize('L')}>
                           <TableCell className="font-medium">L</TableCell>
                           <TableCell>73.5</TableCell>
-                          <TableCell>51.5</TableCell>
                           <TableCell>122</TableCell>
-                          <TableCell>88</TableCell>
                           <TableCell className="hidden md:table-cell">102</TableCell>
                         </TableRow>
                         <TableRow className={highlightCurrentSize('XL')}>
                           <TableCell className="font-medium">XL</TableCell>
                           <TableCell>76</TableCell>
-                          <TableCell>53</TableCell>
                           <TableCell>127</TableCell>
-                          <TableCell>90</TableCell>
                           <TableCell className="hidden md:table-cell">103</TableCell>
                         </TableRow>
                         <TableRow className={highlightCurrentSize('2XL')}>
                           <TableCell className="font-medium">2XL</TableCell>
                           <TableCell>78.5</TableCell>
-                          <TableCell>54.5</TableCell>
                           <TableCell>132</TableCell>
-                          <TableCell>92</TableCell>
                           <TableCell className="hidden md:table-cell">104</TableCell>
                         </TableRow>
                         <TableRow className={highlightCurrentSize('3XL')}>
                           <TableCell className="font-medium">3XL</TableCell>
                           <TableCell>81</TableCell>
-                          <TableCell>56</TableCell>
                           <TableCell>137</TableCell>
-                          <TableCell>94</TableCell>
                           <TableCell className="hidden md:table-cell">105</TableCell>
                         </TableRow>
                       </>
@@ -276,57 +261,43 @@ export default function ScrubSizeCard({ scrubSize, gender = "male", height, weig
                         <TableRow className={highlightCurrentSize('XXS')}>
                           <TableCell className="font-medium">XXS</TableCell>
                           <TableCell>62.5</TableCell>
-                          <TableCell>42.5</TableCell>
                           <TableCell>97</TableCell>
-                          <TableCell>80</TableCell>
                           <TableCell className="hidden md:table-cell">95</TableCell>
                         </TableRow>
                         <TableRow className={highlightCurrentSize('XS')}>
                           <TableCell className="font-medium">XS</TableCell>
                           <TableCell>65</TableCell>
-                          <TableCell>44</TableCell>
                           <TableCell>102</TableCell>
-                          <TableCell>82</TableCell>
                           <TableCell className="hidden md:table-cell">96</TableCell>
                         </TableRow>
                         <TableRow className={highlightCurrentSize('S')}>
                           <TableCell className="font-medium">S</TableCell>
                           <TableCell>67.5</TableCell>
-                          <TableCell>45.5</TableCell>
                           <TableCell>107</TableCell>
-                          <TableCell>84</TableCell>
                           <TableCell className="hidden md:table-cell">97</TableCell>
                         </TableRow>
                         <TableRow className={highlightCurrentSize('M')}>
                           <TableCell className="font-medium">M</TableCell>
                           <TableCell>70</TableCell>
-                          <TableCell>47</TableCell>
                           <TableCell>112</TableCell>
-                          <TableCell>86</TableCell>
                           <TableCell className="hidden md:table-cell">98</TableCell>
                         </TableRow>
                         <TableRow className={highlightCurrentSize('L')}>
                           <TableCell className="font-medium">L</TableCell>
                           <TableCell>72.5</TableCell>
-                          <TableCell>48.5</TableCell>
                           <TableCell>117</TableCell>
-                          <TableCell>88</TableCell>
                           <TableCell className="hidden md:table-cell">99</TableCell>
                         </TableRow>
                         <TableRow className={highlightCurrentSize('XL')}>
                           <TableCell className="font-medium">XL</TableCell>
                           <TableCell>75</TableCell>
-                          <TableCell>50</TableCell>
                           <TableCell>122</TableCell>
-                          <TableCell>90</TableCell>
                           <TableCell className="hidden md:table-cell">100</TableCell>
                         </TableRow>
                         <TableRow className={highlightCurrentSize('2XL')}>
                           <TableCell className="font-medium">2XL</TableCell>
                           <TableCell>77.5</TableCell>
-                          <TableCell>51.5</TableCell>
                           <TableCell>127</TableCell>
-                          <TableCell>92</TableCell>
                           <TableCell className="hidden md:table-cell">101</TableCell>
                         </TableRow>
                       </>
